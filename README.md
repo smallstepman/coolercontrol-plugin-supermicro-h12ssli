@@ -1,0 +1,2 @@
+# Custom Device CoolerControl Plugin
+
