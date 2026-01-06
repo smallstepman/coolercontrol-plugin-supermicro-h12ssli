@@ -13,9 +13,10 @@ build:
 	@cargo build --locked --release
 
 install: build
-	@sudo mkdir -p $(plugins_dir)/$(service_id)
+	@sudo mkdir -p $(plugins_dir)/$(service_id)/ui
 	@sudo install -m755 ./target/release/$(executable) $(plugins_dir)/$(service_id)
-	@sudo install -m644 ./manifest.toml $(plugins_dir)/$(service_id)
+	@sudo install -m644 ./plugin-files/manifest.toml $(plugins_dir)/$(service_id)
+	@sudo install -m644 ./plugin-files/ui/index.html $(plugins_dir)/$(service_id)/ui
 
 run: build
 	@sudo ./target/release/$(executable)

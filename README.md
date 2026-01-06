@@ -15,11 +15,11 @@ curl --proto '=https' --tlsv1.2 -sSf https://gitlab.com/coolercontrol/cc-plugin-
 curl -fsSL https://gitlab.com/coolercontrol/cc-plugin-custom-device/raw/main/install.sh | sh
 ```
 
-Alternatively you can build the plugin from source:
+Alternatively you can build and install the plugin from source:
 
 Requirements:
 
-- Rust >= 1.86
+- Rust >= 1.88
 - Make
 - Cargo
 - `protoc` (protobuf-compiler)

@@ -6,7 +6,7 @@ description = "A CoolerControl custom device service plugin"
 license = "GPL-3.0-or-later"
 readme = "README.md"
 repository = "https://gitlab.com/coolercontrol/cc-plugin-custom-device"
-rust-version = "1.90.0"
+rust-version = "1.88.0"
 edition = "2024"
 
 [dependencies]
@@ -28,7 +28,6 @@ serde_json = "1.0"
 [build-dependencies]
 # BUILD DEPENDENCY: `protobuf-compiler` Required
 tonic-prost-build = "0.14.2"
-#tonic-health = "0.14.2"
 
 [profile.release]
 strip = "symbols"
