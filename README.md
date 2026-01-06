@@ -8,12 +8,21 @@ and writing device channels.
 
 ## Installation
 
-You can run the installation script:
+### Quick Install (Prebuilt Binary)
+
+Run the installation script to download and install the latest release:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf https://gitlab.com/coolercontrol/cc-plugin-custom-device/raw/main/install.sh | sh
-curl -fsSL https://gitlab.com/coolercontrol/cc-plugin-custom-device/raw/main/install.sh | sh
+curl -fsSL https://gitlab.com/coolercontrol/cc-plugin-custom-device/-/raw/main/install.sh | sh
 ```
+
+To install a specific version:
+
+```bash
+curl -fsSL https://gitlab.com/coolercontrol/cc-plugin-custom-device/-/raw/main/install.sh | sh -s -- v0.1.0
+```
+
+### Build from Source
 
 Alternatively you can build and install the plugin from source:
 
