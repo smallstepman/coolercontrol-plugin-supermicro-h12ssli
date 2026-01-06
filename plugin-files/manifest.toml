@@ -2,7 +2,7 @@
 
 # The unique name to register the service under. *required
 #
-id = "custom_device"
+id = "custom-device"
 
 # The service type. Either "device" or "integration". *required
 # Device services are expected to expose a Unix Domain Socket (UDS) or TCP socket for communication.
