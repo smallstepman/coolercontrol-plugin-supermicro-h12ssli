@@ -1,0 +1,49 @@
+stages:
+  - build
+  - release
+
+variables:
+  CARGO_HOME: ${CI_PROJECT_DIR}/.cargo
+  PACKAGE_NAME: custom-device
+
+# Cache cargo dependencies between jobs
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .cargo/
+    - target/
+
+build:
+  stage: build
+  image: rust:1.88
+  before_script:
+    - apt-get update && apt-get install -y protobuf-compiler
+  script:
+    - cargo build --locked --release
+  artifacts:
+    paths:
+      - target/release/${PACKAGE_NAME}
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_TAG
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: build
+      artifacts: true
+  script:
+    - echo "Creating release for ${CI_COMMIT_TAG}"
+  release:
+    tag_name: ${CI_COMMIT_TAG}
+    name: "Release ${CI_COMMIT_TAG}"
+    description: "Release ${CI_COMMIT_TAG}"
+    assets:
+      links:
+        - name: "${PACKAGE_NAME}-linux-x86_64"
+          url: "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/target/release/${PACKAGE_NAME}"
+          filepath: "/${PACKAGE_NAME}-linux-x86_64"
+          link_type: package
+  rules:
+    - if: $CI_COMMIT_TAG
