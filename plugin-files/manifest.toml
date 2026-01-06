@@ -1,0 +1,47 @@
+# CoolerControl Service Plugin Manifest
+
+# The unique name to register the service under. *required
+#
+id = "custom_device"
+
+# The service type. Either "device" or "integration". *required
+# Device services are expected to expose a Unix Domain Socket (UDS) or TCP socket for communication.
+#
+type = "device"
+
+# A service description to display to users. (optional)
+#
+description = "A custom device service where users can use shell commands to monitor and control their devices."
+
+# Service connection address (optional)
+# Device services expose a Unix Domain Socket (UDS) or TCP socket for communication.
+# For UDS, use a path like "/run/service_name.sock".
+# For TCP, use an address:port like "127.0.0.1:1234" or "::1:1234".
+#
+# Integration services often connect to CoolerControl's REST API, and do not have their own socket.
+# If this is a device service, and this is blank, CoolerControl will use
+# the default socket path of "/run/coolercontrol-plugin-{SERVICE_ID}.sock".
+#
+address = "/run/cc-plugin-custom-device.sock"
+
+# Path to the service executable. (optional)
+# If you specify only the filename, the executable is expected to be in the same plugin directory as this manifest.toml.
+# If it is located elsewhere, use an absolute path. Ensure it has execute permissions (chmod +x).
+# If this is commented out, then CoolerControl will not manage the service and assume it is managed by other means (systemd, etc).
+#
+executable = "custom-device"
+
+# command-line arguments to pass to the executable. (optional)
+#
+#args = "--arg1 --arg2"
+
+# Environment variables to pass to the service executable. (optional)
+#
+#envs = "ENV1=value1 ENV2=value2"
+
+# Setting this to true will run the service as a system service, i.e., with root privileges. (optional)
+# This is required for device services to be able to access raw devices.
+# This is not required for integration services; setting this to false will run the service as the cc-plugin-user, 
+# which has restricted privileges.
+#
+privileged = false

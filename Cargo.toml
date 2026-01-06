@@ -1,0 +1,37 @@
+[package]
+name = "custom-device"
+version = "0.1.0"
+authors = ["Guy Boldon <gb@guyboldon.com>"]
+description = "A CoolerControl custom device service plugin"
+license = "GPL-3.0-or-later"
+readme = "README.md"
+repository = "https://gitlab.com/coolercontrol/cc-plugin-custom-device"
+rust-version = "1.90.0"
+edition = "2024"
+
+[dependencies]
+log = "0.4.29"
+env_logger = "0.11.8"
+systemd-journal-logger = "2.2.2"
+clap = { version = "4.5.54", features = ["derive"] }
+anyhow = "1.0.100"
+tonic = "0.14.2"
+prost = "0.14.1"
+tonic-prost = "0.14.2"
+# adjust features as needed for your implementation:
+tokio = { version = "1.49.0", features = ["macros", "rt", "signal", "fs", "process"] }
+tokio-util = "0.7.18"
+tonic-health = "0.14.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[build-dependencies]
+# BUILD DEPENDENCY: `protobuf-compiler` Required
+tonic-prost-build = "0.14.2"
+#tonic-health = "0.14.2"
+
+[profile.release]
+strip = "symbols"
+opt-level = 3
+lto = "fat"
+codegen-units = 1
