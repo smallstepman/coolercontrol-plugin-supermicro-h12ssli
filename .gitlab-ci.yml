@@ -1,4 +1,5 @@
 stages:
+  - test
   - build
   - release
 
@@ -12,6 +13,17 @@ cache:
   paths:
     - .cargo/
     - target/
+
+test:
+  stage: test
+  image: rust:1.88
+  before_script:
+    - apt-get update && apt-get install -y protobuf-compiler
+  script:
+    - cargo check --locked
+    - cargo test --locked
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
 
 build:
   stage: build
