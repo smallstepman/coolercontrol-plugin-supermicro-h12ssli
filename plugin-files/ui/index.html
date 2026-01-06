@@ -1,0 +1,318 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>Plugin UI</title>
+  <script type="text/javascript" src="../../lib/cc-plugin-lib.js"></script>
+  <!--Note: It can be helpful to include the source of the cc-plugin-lib.js file in your dev directory-->
+  <style>
+      .section-card {
+          background: rgb(var(--colors-bg-one));
+          border: 1px solid rgb(var(--colors-border-one));
+          border-radius: 0.5rem;
+          padding: 1rem;
+          margin-bottom: 1rem;
+      }
+
+      .nested-card {
+          background: rgb(var(--colors-bg-two));
+          border: 1px solid rgb(var(--colors-border-one));
+          border-radius: 0.375rem;
+          padding: 0.75rem;
+          margin-bottom: 0.5rem;
+      }
+
+      .input-field {
+          background: rgb(var(--colors-bg-one));
+          border: 1px solid rgb(var(--colors-border-one));
+          border-radius: 0.375rem;
+          padding: 0.5rem;
+          width: 100%;
+          outline: none;
+      }
+
+      .input-field:focus {
+          border-color: rgb(var(--colors-accent));
+      }
+
+      .btn {
+          padding: 0.5rem 1rem;
+          border-radius: 0.375rem;
+          cursor: pointer;
+          border: 1px solid rgb(var(--colors-border-one));
+      }
+
+      .btn-add {
+          background: rgb(var(--colors-accent));
+          opacity: 0.8;
+      }
+
+      .btn-add:hover {
+          opacity: 1;
+      }
+
+      .btn-remove {
+          background: rgb(var(--colors-red));
+          opacity: 0.8;
+      }
+
+      .btn-remove:hover {
+          opacity: 1;
+      }
+
+      .label-text {
+          font-weight: 500;
+          margin-bottom: 0.25rem;
+          display: block;
+      }
+
+      .grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.5rem;
+      }
+  </style>
+</head>
+<body class="flex flex-col min-h-full text-text-color bg-bg-two p-2">
+<p class="text-lg font-semibold">Custom Device Configuration</p>
+<p class="text-sm mb-1">Define custom devices with shell commands for fan control and temperature monitoring. Not all commands are required, leave optional fields empty.</p>
+<p class="text-sm opacity-70 italic">Note: After saving, restart the daemon via the power menu (bottom-left) to apply changes.</p>
+<hr class="my-2"/>
+<div id="devicesContainer" class="mt-4"></div>
+<button type="button" class="btn btn-add mt-2" onclick="addDevice()">
+  <i class="pi pi-plus"></i> Add Device
+</button>
+<div class="grow"></div>
+<div class="flex flex-row justify-end mt-4">
+  <button
+      class="bg-accent/80 hover:!bg-accent w-32 p-2 border-2 border-border-one rounded-lg"
+      onclick="saveConfig()"
+  >
+    <i class="pi pi-save text-xl"></i>
+  </button>
+</div>
+<script type="text/javascript">
+  // close once saved:
+  successfulConfigSaveCallback(close);
+
+  let devicesData = [];
+
+  // Build config object from current UI state
+  const buildConfigFromUI = () => {
+    const devices = [];
+    const deviceElements = document.querySelectorAll('.device-entry');
+
+    deviceElements.forEach((deviceEl) => {
+      const device = {
+        id: deviceEl.querySelector('.device-id').value,
+        label: deviceEl.querySelector('.device-label').value,
+        channels: [],
+        temps: []
+      };
+
+      // Collect channels (fans)
+      deviceEl.querySelectorAll('.channel-entry').forEach((channelEl) => {
+        const channel = {
+          id: channelEl.querySelector('.channel-id').value,
+          label: channelEl.querySelector('.channel-label').value,
+          commands: {
+            get_rpm: channelEl.querySelector('.cmd-get-rpm').value,
+            get_duty: channelEl.querySelector('.cmd-get-duty').value,
+            set_duty: channelEl.querySelector('.cmd-set-duty').value,
+            enable_manual: channelEl.querySelector('.cmd-enable-manual').value,
+            reset: channelEl.querySelector('.cmd-reset').value
+          }
+        };
+        device.channels.push(channel);
+      });
+
+      // Collect temps
+      deviceEl.querySelectorAll('.temp-entry').forEach((tempEl) => {
+        const temp = {
+          id: tempEl.querySelector('.temp-id').value,
+          label: tempEl.querySelector('.temp-label').value,
+          command: tempEl.querySelector('.temp-command').value
+        };
+        device.temps.push(temp);
+      });
+
+      devices.push(device);
+    });
+
+    return {devices};
+  };
+
+  const saveConfig = () => {
+    const config = buildConfigFromUI();
+    console.debug("Saving config:", config);
+    savePluginConfig(config);
+  };
+
+  const createInputGroup = (labelText, className, value = '', placeholder = '') => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mb-2';
+
+    const label = document.createElement('label');
+    label.className = 'label-text text-sm';
+    label.textContent = labelText;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = `input-field ${className}`;
+    input.value = value;
+    input.placeholder = placeholder;
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(input);
+    return wrapper;
+  };
+
+  const createChannelElement = (channel = {}) => {
+    const channelDiv = document.createElement('div');
+    channelDiv.className = 'nested-card channel-entry';
+
+    const header = document.createElement('div');
+    header.className = 'flex justify-between items-center mb-2';
+    header.innerHTML = `<span class="font-semibold text-sm">Fan Channel</span>`;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn btn-remove text-sm';
+    removeBtn.innerHTML = '<i class="pi pi-trash"></i>';
+    removeBtn.onclick = () => channelDiv.remove();
+    header.appendChild(removeBtn);
+    channelDiv.appendChild(header);
+
+    const idLabelGrid = document.createElement('div');
+    idLabelGrid.className = 'grid-2';
+    idLabelGrid.appendChild(createInputGroup('ID', 'channel-id', channel.id || '', 'fan1'));
+    idLabelGrid.appendChild(createInputGroup('Label', 'channel-label', channel.label || '', 'Fan 1'));
+    channelDiv.appendChild(idLabelGrid);
+
+    const cmdsLabel = document.createElement('div');
+    cmdsLabel.className = 'label-text text-sm mt-2';
+    cmdsLabel.textContent = 'Commands';
+    channelDiv.appendChild(cmdsLabel);
+
+    const commands = channel.commands || {};
+    channelDiv.appendChild(createInputGroup('get_rpm', 'cmd-get-rpm', commands.get_rpm || '', 'cat /sys/.../fan1_input'));
+    channelDiv.appendChild(createInputGroup('get_duty', 'cmd-get-duty', commands.get_duty || '', 'echo $(($(cat /sys/.../pwm1) * 100 / 255))'));
+    channelDiv.appendChild(createInputGroup('set_duty', 'cmd-set-duty', commands.set_duty || '', 'echo $(({duty} * 255 / 100)) > /sys/.../pwm1'));
+    channelDiv.appendChild(createInputGroup('enable_manual', 'cmd-enable-manual', commands.enable_manual || '', 'echo 1 > /sys/.../pwm1_enable'));
+    channelDiv.appendChild(createInputGroup('reset', 'cmd-reset', commands.reset || '', 'echo 2 > /sys/.../pwm1_enable'));
+
+    return channelDiv;
+  };
+
+  const createTempElement = (temp = {}) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.className = 'nested-card temp-entry';
+
+    const header = document.createElement('div');
+    header.className = 'flex justify-between items-center mb-2';
+    header.innerHTML = `<span class="font-semibold text-sm">Temp Sensor</span>`;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn btn-remove text-sm';
+    removeBtn.innerHTML = '<i class="pi pi-trash"></i>';
+    removeBtn.onclick = () => tempDiv.remove();
+    header.appendChild(removeBtn);
+    tempDiv.appendChild(header);
+
+    const idLabelGrid = document.createElement('div');
+    idLabelGrid.className = 'grid-2';
+    idLabelGrid.appendChild(createInputGroup('ID', 'temp-id', temp.id || '', 'temp1'));
+    idLabelGrid.appendChild(createInputGroup('Label', 'temp-label', temp.label || '', 'GPU Temp'));
+    tempDiv.appendChild(idLabelGrid);
+
+    tempDiv.appendChild(createInputGroup('Command', 'temp-command', temp.command || '', 'cat /sys/.../temp1_input'));
+
+    return tempDiv;
+  };
+
+  const createDeviceElement = (device = {}) => {
+    const deviceDiv = document.createElement('div');
+    deviceDiv.className = 'section-card device-entry mb-4';
+
+    const header = document.createElement('div');
+    header.className = 'flex justify-between items-center mb-3';
+    header.innerHTML = `<span class="font-semibold">Device</span>`;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'btn btn-remove';
+    removeBtn.innerHTML = '<i class="pi pi-trash"></i> Remove Device';
+    removeBtn.onclick = () => deviceDiv.remove();
+    header.appendChild(removeBtn);
+    deviceDiv.appendChild(header);
+
+    const idLabelGrid = document.createElement('div');
+    idLabelGrid.className = 'grid-2 mb-3';
+    idLabelGrid.appendChild(createInputGroup('Device ID', 'device-id', device.id || '', 'my-device'));
+    idLabelGrid.appendChild(createInputGroup('Device Label', 'device-label', device.label || '', 'My Device'));
+    deviceDiv.appendChild(idLabelGrid);
+
+    // Channels section
+    const channelsSection = document.createElement('div');
+    channelsSection.className = 'mb-3';
+    channelsSection.innerHTML = `<div class="label-text mb-2">Fan Channels</div>`;
+
+    const channelsContainer = document.createElement('div');
+    channelsContainer.className = 'channels-container';
+    (device.channels || []).forEach(ch => {
+      channelsContainer.appendChild(createChannelElement(ch));
+    });
+    channelsSection.appendChild(channelsContainer);
+
+    const addChannelBtn = document.createElement('button');
+    addChannelBtn.type = 'button';
+    addChannelBtn.className = 'btn btn-add text-sm mt-1';
+    addChannelBtn.innerHTML = '<i class="pi pi-plus"></i> Add Fan Channel';
+    addChannelBtn.onclick = () => channelsContainer.appendChild(createChannelElement());
+    channelsSection.appendChild(addChannelBtn);
+    deviceDiv.appendChild(channelsSection);
+
+    // Temps section
+    const tempsSection = document.createElement('div');
+    tempsSection.innerHTML = `<div class="label-text mb-2">Temp Sensors</div>`;
+
+    const tempsContainer = document.createElement('div');
+    tempsContainer.className = 'temps-container';
+    (device.temps || []).forEach(t => {
+      tempsContainer.appendChild(createTempElement(t));
+    });
+    tempsSection.appendChild(tempsContainer);
+
+    const addTempBtn = document.createElement('button');
+    addTempBtn.type = 'button';
+    addTempBtn.className = 'btn btn-add text-sm mt-1';
+    addTempBtn.innerHTML = '<i class="pi pi-plus"></i> Add Temp Sensor';
+    addTempBtn.onclick = () => tempsContainer.appendChild(createTempElement());
+    tempsSection.appendChild(addTempBtn);
+    deviceDiv.appendChild(tempsSection);
+
+    return deviceDiv;
+  };
+
+  const addDevice = () => {
+    const container = document.getElementById('devicesContainer');
+    container.appendChild(createDeviceElement());
+  };
+
+  const renderDevices = (devices) => {
+    const container = document.getElementById('devicesContainer');
+    container.innerHTML = '';
+    devices.forEach(device => {
+      container.appendChild(createDeviceElement(device));
+    });
+  };
+
+  // The main plugin script (async)
+  runPluginScript(async () => {
+    const config = await getPluginConfig();
+    console.debug("CC Config:", config);
+    devicesData = config.devices ?? [];
+    renderDevices(devicesData);
+  });
+</script>
+</body>
+</html>
