@@ -25,9 +25,11 @@ test:
   rules:
     - if: $CI_PIPELINE_SOURCE == "push"
 
-build:
+build:x86_64:
   stage: build
   image: rust:1.88
+  tags:
+    - saas-linux-large-amd64
   before_script:
     - apt-get update && apt-get install -y protobuf-compiler
   script:
@@ -39,11 +41,27 @@ build:
   rules:
     - if: $CI_COMMIT_TAG
 
-upload:
+build:aarch64:
+  stage: build
+  image: rust:1.88
+  tags:
+    - saas-linux-large-arm64
+  before_script:
+    - apt-get update && apt-get install -y protobuf-compiler
+  script:
+    - cargo build --locked --release
+  artifacts:
+    paths:
+      - target/release/${PACKAGE_NAME}
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_TAG
+
+upload:x86_64:
   stage: release
   image: curlimages/curl:latest
   needs:
-    - job: build
+    - job: build:x86_64
       artifacts: true
   script:
     - |
@@ -53,11 +71,26 @@ upload:
   rules:
     - if: $CI_COMMIT_TAG
 
+upload:aarch64:
+  stage: release
+  image: curlimages/curl:latest
+  needs:
+    - job: build:aarch64
+      artifacts: true
+  script:
+    - |
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+           --upload-file target/release/${PACKAGE_NAME} \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${CI_COMMIT_TAG}/${PACKAGE_NAME}-linux-aarch64"
+  rules:
+    - if: $CI_COMMIT_TAG
+
 release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   needs:
-    - job: upload
+    - job: upload:x86_64
+    - job: upload:aarch64
   script:
     - echo "Creating release for ${CI_COMMIT_TAG}"
   release:
@@ -69,6 +102,10 @@ release:
         - name: "${PACKAGE_NAME}-linux-x86_64"
           url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${CI_COMMIT_TAG}/${PACKAGE_NAME}-linux-x86_64"
           filepath: "/${PACKAGE_NAME}-linux-x86_64"
+          link_type: package
+        - name: "${PACKAGE_NAME}-linux-aarch64"
+          url: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGE_NAME}/${CI_COMMIT_TAG}/${PACKAGE_NAME}-linux-aarch64"
+          filepath: "/${PACKAGE_NAME}-linux-aarch64"
           link_type: package
   rules:
     - if: $CI_COMMIT_TAG

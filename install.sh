@@ -33,6 +33,21 @@ check_requirements() {
     fi
 }
 
+# Detect system architecture
+get_arch() {
+    case "$(uname -m)" in
+        x86_64|amd64)
+            echo "x86_64"
+            ;;
+        aarch64|arm64)
+            echo "aarch64"
+            ;;
+        *)
+            error "Unsupported architecture: $(uname -m)"
+            ;;
+    esac
+}
+
 # Get the latest release tag from GitLab
 get_latest_version() {
     curl -s "${REPO_URL}/-/tags?format=atom" | grep -oP '(?<=<title>)[^<]+' | head -2 | tail -1
@@ -52,9 +67,10 @@ download_file() {
 download_binary() {
     local version="$1"
     local dest="$2"
+    local arch="$3"
     
-    info "Downloading binary for ${version}..."
-    curl -fsSL "${REPO_URL}/-/releases/${version}/downloads/${EXECUTABLE}-linux-x86_64" -o "${dest}"
+    info "Downloading binary for ${version} (${arch})..."
+    curl -fsSL "${REPO_URL}/-/releases/${version}/downloads/${EXECUTABLE}-linux-${arch}" -o "${dest}"
 }
 
 main() {
@@ -62,6 +78,10 @@ main() {
     echo ""
     
     check_requirements
+    
+    # Detect architecture
+    ARCH=$(get_arch)
+    info "Detected architecture: ${ARCH}"
     
     # Get version (use argument or fetch latest)
     VERSION="${1:-}"
@@ -79,7 +99,7 @@ main() {
     trap 'rm -rf ${TEMP_DIR}' EXIT
     
     # Download files
-    download_binary "${VERSION}" "${TEMP_DIR}/${EXECUTABLE}"
+    download_binary "${VERSION}" "${TEMP_DIR}/${EXECUTABLE}" "${ARCH}"
     download_file "plugin-files/manifest.toml" "${TEMP_DIR}/manifest.toml" "${VERSION}"
     download_file "plugin-files/ui/index.html" "${TEMP_DIR}/index.html" "${VERSION}"
 
