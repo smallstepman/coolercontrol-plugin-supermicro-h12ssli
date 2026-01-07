@@ -29,7 +29,7 @@ impl CustomDeviceService {
     }
 
     fn load_config() -> Result<(CustomDevices, Vec<Device>)> {
-        let config = std::fs::read_to_string("config.json")?;
+        let config = std::fs::read_to_string(format!("/etc/coolercontrol/plugins/{SERVICE_ID}/config.json"))?;
         let config: CustomDevices = serde_json::from_str(&config)?;
         let devices = config::convert_to_devices(&config)?;
         Ok((config, devices))
