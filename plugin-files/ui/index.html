@@ -140,25 +140,58 @@
     return {devices};
   };
 
+  const validateRequiredFields = () => {
+    const requiredInputs = document.querySelectorAll('input[required]');
+    for (const input of requiredInputs) {
+      if (!input.value.trim()) {
+        input.focus();
+        input.style.borderColor = 'rgb(var(--colors-red))';
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const validateIdFields = () => {
+    const idInputs = document.querySelectorAll('.device-id, .channel-id, .temp-id');
+    for (const input of idInputs) {
+      if (input.value.includes(' ')) {
+        input.focus();
+        input.style.borderColor = 'rgb(var(--colors-red))';
+        console.warn("ID fields cannot contain spaces");
+        return false;
+      }
+    }
+    return true;
+  };
+
   const saveConfig = () => {
+    if (!validateRequiredFields()) {
+      console.warn("Required fields are empty");
+      return;
+    }
+    if (!validateIdFields()) {
+      return;
+    }
     const config = buildConfigFromUI();
     console.debug("Saving config:", config);
     savePluginConfig(config);
   };
 
-  const createInputGroup = (labelText, className, value = '', placeholder = '') => {
+  const createInputGroup = (labelText, className, value = '', placeholder = '', required = false) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'mb-2';
 
     const label = document.createElement('label');
     label.className = 'label-text text-sm';
-    label.textContent = labelText;
+    label.textContent = labelText + (required ? ' *' : '');
 
     const input = document.createElement('input');
     input.type = 'text';
     input.className = `input-field ${className}`;
     input.value = value;
     input.placeholder = placeholder;
+    input.required = required;
 
     wrapper.appendChild(label);
     wrapper.appendChild(input);
@@ -183,7 +216,7 @@
 
     const idLabelGrid = document.createElement('div');
     idLabelGrid.className = 'grid-2';
-    idLabelGrid.appendChild(createInputGroup('ID', 'channel-id', channel.id || '', 'fan1'));
+    idLabelGrid.appendChild(createInputGroup('ID', 'channel-id', channel.id || '', 'fan1', true));
     idLabelGrid.appendChild(createInputGroup('Label', 'channel-label', channel.label || '', 'Fan 1'));
     channelDiv.appendChild(idLabelGrid);
 
@@ -194,7 +227,7 @@
 
     const commands = channel.commands || {};
     channelDiv.appendChild(createInputGroup('get_rpm', 'cmd-get-rpm', commands.get_rpm || '', 'cat /sys/.../fan1_input'));
-    channelDiv.appendChild(createInputGroup('get_duty', 'cmd-get-duty', commands.get_duty || '', 'echo $(($(cat /sys/.../pwm1) * 100 / 255))'));
+    channelDiv.appendChild(createInputGroup('get_duty', 'cmd-get-duty', commands.get_duty || '', 'echo $(($(cat /sys/.../pwm1) * 100 / 255))', true));
     channelDiv.appendChild(createInputGroup('set_duty', 'cmd-set-duty', commands.set_duty || '', 'echo $(({duty} * 255 / 100)) > /sys/.../pwm1'));
     channelDiv.appendChild(createInputGroup('enable_manual', 'cmd-enable-manual', commands.enable_manual || '', 'echo 1 > /sys/.../pwm1_enable'));
     channelDiv.appendChild(createInputGroup('reset', 'cmd-reset', commands.reset || '', 'echo 2 > /sys/.../pwm1_enable'));
@@ -220,11 +253,11 @@
 
     const idLabelGrid = document.createElement('div');
     idLabelGrid.className = 'grid-2';
-    idLabelGrid.appendChild(createInputGroup('ID', 'temp-id', temp.id || '', 'temp1'));
+    idLabelGrid.appendChild(createInputGroup('ID', 'temp-id', temp.id || '', 'temp1', true));
     idLabelGrid.appendChild(createInputGroup('Label', 'temp-label', temp.label || '', 'GPU Temp'));
     tempDiv.appendChild(idLabelGrid);
 
-    tempDiv.appendChild(createInputGroup('Command', 'temp-command', temp.command || '', 'cat /sys/.../temp1_input'));
+    tempDiv.appendChild(createInputGroup('Command', 'temp-command', temp.command || '', 'cat /sys/.../temp1_input', true));
 
     return tempDiv;
   };
@@ -247,7 +280,7 @@
 
     const idLabelGrid = document.createElement('div');
     idLabelGrid.className = 'grid-2 mb-3';
-    idLabelGrid.appendChild(createInputGroup('Device ID', 'device-id', device.id || '', 'my-device'));
+    idLabelGrid.appendChild(createInputGroup('Device ID', 'device-id', device.id || '', 'my-device', true));
     idLabelGrid.appendChild(createInputGroup('Device Label', 'device-label', device.label || '', 'My Device'));
     deviceDiv.appendChild(idLabelGrid);
 
