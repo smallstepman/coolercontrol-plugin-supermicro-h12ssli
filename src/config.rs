@@ -10,10 +10,18 @@ pub type DeviceId = String;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CustomDevices {
+
+    #[serde(default)]
     pub devices: Vec<CustomDevice>,
 }
 
 impl CustomDevices {
+    pub fn new() -> Self {
+        Self {
+            devices: Vec::new(),
+        }
+    }
+
     pub fn get_device(&self, device_id: &str) -> Option<&CustomDevice> {
         self.devices.iter().find(|d| d.id == device_id)
     }

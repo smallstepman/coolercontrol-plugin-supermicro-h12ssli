@@ -11,7 +11,7 @@ use crate::device_service::v1::{
 use crate::models::v1::Device;
 use crate::{config, executor, SERVICE_ID, VERSION};
 use anyhow::Result;
-use log::debug;
+use log::{debug, warn};
 use tonic::{Request, Response, Status};
 
 pub struct CustomDeviceService {
@@ -21,10 +21,18 @@ pub struct CustomDeviceService {
 
 impl CustomDeviceService {
     pub fn load_from_config_json() -> Result<Self> {
+        let (config, devices) = Self::load_config().unwrap_or_else(|err| {
+            warn!("Error parsing config.json. This is normal if a config has not yet been created: {err}");
+            (CustomDevices::new(), vec![])
+        });
+        Ok(Self { config, devices })
+    }
+
+    fn load_config() -> Result<(CustomDevices, Vec<Device>)> {
         let config = std::fs::read_to_string("config.json")?;
         let config: CustomDevices = serde_json::from_str(&config)?;
         let devices = config::convert_to_devices(&config)?;
-        Ok(Self { config, devices })
+        Ok((config, devices))
     }
 }
 
