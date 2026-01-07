@@ -48,6 +48,18 @@ sudo systemctl restart coolercontrold
 Check the CoolerControl UI Plugin settings page to confirm your service is detected and started. You can then click on
 the Plugin's settings button in the UI and configure your device channel shell commands.
 
+### Configuration Notes
+
+**Fan Channels:**
+- At least one of `get_rpm` or `get_duty` is required; all other commands are optional
+- `get_duty` should return an integer percentage (0–100)
+- `get_rpm` should return an integer RPM value (typical range: 0–10,000)
+- `set_duty` uses `{duty}` as a placeholder for the target duty percentage
+
+**Temperature Sensors:**
+- `command` is required
+- Should return temperature in millidegrees Celsius (e.g., `45000` for 45°C)
+
 ## Problems?
 
 Check the service logs for warnings and errors:
