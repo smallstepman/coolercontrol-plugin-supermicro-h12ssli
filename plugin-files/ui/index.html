@@ -75,6 +75,7 @@
 <p class="text-lg font-semibold">Custom Device Configuration</p>
 <p class="text-sm mb-1">Define custom devices with shell commands for fan control and temperature monitoring. Not all commands are required, leave optional fields empty.</p>
 <p class="text-sm opacity-70 italic">Note: After saving, restart the daemon via the power menu (bottom-left) to apply changes.</p>
+<p class="text-sm opacity-70 mt-1"><span class="font-semibold">*</span> = required, <span class="font-semibold">†</span> = at least one required</p>
 <hr class="my-2"/>
 <div id="devicesContainer" class="mt-4"></div>
 <button type="button" class="btn btn-add mt-2" onclick="addDevice()">
@@ -165,12 +166,33 @@
     return true;
   };
 
+  const validateChannelCommands = () => {
+    const channelEntries = document.querySelectorAll('.channel-entry');
+    for (const channelEl of channelEntries) {
+      const getRpm = channelEl.querySelector('.cmd-get-rpm').value.trim();
+      const getDuty = channelEl.querySelector('.cmd-get-duty').value.trim();
+      if (!getRpm && !getDuty) {
+        const rpmInput = channelEl.querySelector('.cmd-get-rpm');
+        const dutyInput = channelEl.querySelector('.cmd-get-duty');
+        rpmInput.style.borderColor = 'rgb(var(--colors-red))';
+        dutyInput.style.borderColor = 'rgb(var(--colors-red))';
+        rpmInput.focus();
+        console.warn("Each fan channel requires either get_rpm or get_duty");
+        return false;
+      }
+    }
+    return true;
+  };
+
   const saveConfig = () => {
     if (!validateRequiredFields()) {
       console.warn("Required fields are empty");
       return;
     }
     if (!validateIdFields()) {
+      return;
+    }
+    if (!validateChannelCommands()) {
       return;
     }
     const config = buildConfigFromUI();
@@ -226,8 +248,8 @@
     channelDiv.appendChild(cmdsLabel);
 
     const commands = channel.commands || {};
-    channelDiv.appendChild(createInputGroup('get_rpm', 'cmd-get-rpm', commands.get_rpm || '', 'cat /sys/.../fan1_input'));
-    channelDiv.appendChild(createInputGroup('get_duty', 'cmd-get-duty', commands.get_duty || '', 'echo $(($(cat /sys/.../pwm1) * 100 / 255))', true));
+    channelDiv.appendChild(createInputGroup('get_rpm (†)', 'cmd-get-rpm', commands.get_rpm || '', 'cat /sys/.../fan1_input'));
+    channelDiv.appendChild(createInputGroup('get_duty (†)', 'cmd-get-duty', commands.get_duty || '', 'echo $(($(cat /sys/.../pwm1) * 100 / 255))'));
     channelDiv.appendChild(createInputGroup('set_duty', 'cmd-set-duty', commands.set_duty || '', 'echo $(({duty} * 255 / 100)) > /sys/.../pwm1'));
     channelDiv.appendChild(createInputGroup('enable_manual', 'cmd-enable-manual', commands.enable_manual || '', 'echo 1 > /sys/.../pwm1_enable'));
     channelDiv.appendChild(createInputGroup('reset', 'cmd-reset', commands.reset || '', 'echo 2 > /sys/.../pwm1_enable'));
