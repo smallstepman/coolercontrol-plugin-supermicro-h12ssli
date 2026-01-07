@@ -82,16 +82,14 @@ main() {
     download_binary "${VERSION}" "${TEMP_DIR}/${EXECUTABLE}"
     download_file "plugin-files/manifest.toml" "${TEMP_DIR}/manifest.toml" "${VERSION}"
     download_file "plugin-files/ui/index.html" "${TEMP_DIR}/index.html" "${VERSION}"
-    download_file "plugin-files/ui/cc-plugin-lib.js" "${TEMP_DIR}/cc-plugin-lib.js" "${VERSION}"
-    
+
     # Install files
     info "Installing files to ${PLUGINS_DIR}/${SERVICE_ID}..."
     sudo mkdir -p "${PLUGINS_DIR}/${SERVICE_ID}/ui"
     sudo install -m755 "${TEMP_DIR}/${EXECUTABLE}" "${PLUGINS_DIR}/${SERVICE_ID}/"
     sudo install -m644 "${TEMP_DIR}/manifest.toml" "${PLUGINS_DIR}/${SERVICE_ID}/"
     sudo install -m644 "${TEMP_DIR}/index.html" "${PLUGINS_DIR}/${SERVICE_ID}/ui/"
-    sudo install -m644 "${TEMP_DIR}/cc-plugin-lib.js" "${PLUGINS_DIR}/${SERVICE_ID}/ui/"
-    
+
     echo ""
     info "Installation complete!"
     echo ""
