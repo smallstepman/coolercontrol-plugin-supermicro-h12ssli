@@ -74,6 +74,7 @@ pub fn convert_to_devices(config: &CustomDevices) -> Result<Vec<Device>> {
             .iter()
             .cloned()
             .map(|channel| {
+                let is_controllable = channel.get_command(&ChannelCommand::SetDuty).is_some();
                 (
                     channel.id,
                     models::v1::ChannelInfo {
@@ -82,7 +83,7 @@ pub fn convert_to_devices(config: &CustomDevices) -> Result<Vec<Device>> {
                             models::v1::SpeedOptions {
                                 min_duty: 0,
                                 max_duty: 100,
-                                fixed_enabled: true,
+                                fixed_enabled: is_controllable,
                                 extension: None,
                             },
                         )),
