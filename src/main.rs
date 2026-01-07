@@ -50,7 +50,7 @@ async fn main() -> Result<()> {
     // The default socket path for device services requires privileged access. Using the following
     // will work for both privileged and non-privileged services.
     // Make sure it's also correct in the manifest.toml
-    let uds_path = format!("/etc/coolercontrol/plugins/{SERVICE_ID}/{SERVICE_ID}.sock");
+    let uds_path = format!("/tmp/{SERVICE_ID}.sock");
     cleanup_uds(&uds_path).await;
     let uds = match UnixListener::bind(&uds_path) {
         Ok(listener) => listener,

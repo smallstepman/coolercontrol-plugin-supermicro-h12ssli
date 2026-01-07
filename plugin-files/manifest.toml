@@ -22,7 +22,7 @@ description = "A custom device service where users can use shell commands to mon
 # If this is a device service, and this is blank, CoolerControl will use
 # the default socket path of "/run/coolercontrol-plugin-{SERVICE_ID}.sock".
 #
-address = "/run/cc-plugin-custom-device.sock"
+address = "/tmp/custom-device.sock"
 
 # Path to the service executable. (optional)
 # If you specify only the filename, the executable is expected to be in the same plugin directory as this manifest.toml.
