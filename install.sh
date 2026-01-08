@@ -107,7 +107,12 @@ main() {
     info "Installing files to ${PLUGINS_DIR}/${SERVICE_ID}..."
     sudo mkdir -p "${PLUGINS_DIR}/${SERVICE_ID}/ui"
     sudo install -m755 "${TEMP_DIR}/${EXECUTABLE}" "${PLUGINS_DIR}/${SERVICE_ID}/"
-    sudo install -m644 "${TEMP_DIR}/manifest.toml" "${PLUGINS_DIR}/${SERVICE_ID}/"
+    if [ -f "${PLUGINS_DIR}/${SERVICE_ID}/manifest.toml" ]; then
+        warn "manifest.toml already exists, saving new version as manifest.toml.new"
+        sudo install -m644 "${TEMP_DIR}/manifest.toml" "${PLUGINS_DIR}/${SERVICE_ID}/manifest.toml.new"
+    else
+        sudo install -m644 "${TEMP_DIR}/manifest.toml" "${PLUGINS_DIR}/${SERVICE_ID}/"
+    fi
     sudo install -m644 "${TEMP_DIR}/index.html" "${PLUGINS_DIR}/${SERVICE_ID}/ui/"
 
     echo ""
