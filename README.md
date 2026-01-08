@@ -39,6 +39,13 @@ make install
 
 ## After Installation
 
+If you need root permissions to write to your devices (e.g. to control fans), you will need to run the service with
+privileged access. Edit the `manifest.toml` file and set `privileged = true`.
+
+```bash
+sudo nano /etc/coolercontrol/plugins/custom-device/manifest.toml
+```
+
 Restart the CoolerControl daemon:
 
 ```bash
@@ -51,12 +58,14 @@ the Plugin's settings button in the UI and configure your device channel shell c
 ### Configuration Notes
 
 **Fan Channels:**
+
 - At least one of `get_rpm` or `get_duty` is required; all other commands are optional
 - `get_duty` should return an integer percentage (0–100)
 - `get_rpm` should return an integer RPM value (typical range: 0–10,000)
 - `set_duty` uses `{duty}` as a placeholder for the target duty percentage
 
 **Temperature Sensors:**
+
 - `command` is required
 - Should return temperature in millidegrees Celsius (e.g., `45000` for 45°C)
 

@@ -40,7 +40,7 @@ executable = "custom-device"
 #envs = "ENV1=value1 ENV2=value2"
 
 # Setting this to true will run the service as a system service, i.e., with root privileges. (optional)
-# This is required for device services to be able to access raw devices.
+# This is required for device services to be able to write to raw devices.
 # This is not required for integration services; setting this to false will run the service as the cc-plugin-user, 
 # which has restricted privileges.
 #
