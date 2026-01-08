@@ -1,6 +1,6 @@
 [package]
 name = "custom-device"
-version = "0.0.4"
+version = "0.0.5"
 authors = ["Guy Boldon <gb@guyboldon.com>"]
 description = "A CoolerControl custom device service plugin"
 license = "GPL-3.0-or-later"
