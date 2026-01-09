@@ -1,15 +1,15 @@
 use crate::config::CustomDevices;
 use crate::device_service::v1::device_service_server::DeviceService;
 use crate::device_service::v1::{
-    health_response, CustomFunctionOneRequest, CustomFunctionOneResponse,
-    EnableManualFanControlRequest, EnableManualFanControlResponse, FixedDutyRequest, FixedDutyResponse,
-    HealthRequest, HealthResponse, InitializeDeviceRequest, InitializeDeviceResponse, LcdRequest,
-    LcdResponse, LightingRequest, LightingResponse, ListDevicesRequest,
-    ListDevicesResponse, ResetChannelRequest, ResetChannelResponse, ShutdownRequest,
-    ShutdownResponse, SpeedProfileRequest, SpeedProfileResponse, StatusRequest, StatusResponse,
+    CustomFunctionOneRequest, CustomFunctionOneResponse, EnableManualFanControlRequest,
+    EnableManualFanControlResponse, FixedDutyRequest, FixedDutyResponse, HealthRequest,
+    HealthResponse, InitializeDeviceRequest, InitializeDeviceResponse, LcdRequest, LcdResponse,
+    LightingRequest, LightingResponse, ListDevicesRequest, ListDevicesResponse,
+    ResetChannelRequest, ResetChannelResponse, ShutdownRequest, ShutdownResponse,
+    SpeedProfileRequest, SpeedProfileResponse, StatusRequest, StatusResponse, health_response,
 };
 use crate::models::v1::Device;
-use crate::{config, executor, SERVICE_ID, VERSION};
+use crate::{SERVICE_ID, VERSION, config, executor};
 use anyhow::Result;
 use log::{debug, warn};
 use tonic::{Request, Response, Status};
@@ -29,7 +29,9 @@ impl CustomDeviceService {
     }
 
     fn load_config() -> Result<(CustomDevices, Vec<Device>)> {
-        let config = std::fs::read_to_string(format!("/etc/coolercontrol/plugins/{SERVICE_ID}/config.json"))?;
+        let config = std::fs::read_to_string(format!(
+            "/etc/coolercontrol/plugins/{SERVICE_ID}/config.json"
+        ))?;
         let config: CustomDevices = serde_json::from_str(&config)?;
         let devices = config::convert_to_devices(&config)?;
         Ok((config, devices))

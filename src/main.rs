@@ -1,6 +1,6 @@
-mod service;
 mod config;
 mod executor;
+mod service;
 
 use crate::device_service::v1::device_service_server::DeviceServiceServer;
 use crate::service::CustomDeviceService;

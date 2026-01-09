@@ -10,7 +10,6 @@ pub type DeviceId = String;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CustomDevices {
-
     #[serde(default)]
     pub devices: Vec<CustomDevice>,
 }
