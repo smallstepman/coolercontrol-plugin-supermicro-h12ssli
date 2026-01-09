@@ -11,7 +11,7 @@ type = "device"
 
 # The version of your plugin that will be displayed in the UI. (Optional)
 # This helps users know whether the plugin is up-to-date or not.
-version = "0.0.5"
+version = "0.1.0"
 
 # Your Plugin's homepage URL that will be linked in the UI. (optional)
 # Helpful for updating, submitting issues, and accessing your plugin's documentation.
