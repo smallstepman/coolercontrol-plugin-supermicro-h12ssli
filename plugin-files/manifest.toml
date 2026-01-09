@@ -9,6 +9,14 @@ id = "custom-device"
 #
 type = "device"
 
+# The version of your plugin that will be displayed in the UI. (Optional)
+# This helps users know whether the plugin is up-to-date or not.
+version = "0.0.5"
+
+# Your Plugin's homepage URL that will be linked in the UI. (optional)
+# Helpful for updating, submitting issues, and accessing your plugin's documentation.
+url = "https://gitlab.com/coolercontrol/cc-plugin-custom-device"
+
 # A service description to display to users. (optional)
 #
 description = "A custom device service where users can use shell commands to monitor and control their devices."
