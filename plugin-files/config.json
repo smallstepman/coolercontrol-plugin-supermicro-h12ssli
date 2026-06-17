@@ -1,0 +1,30 @@
+{
+  "devices": [
+    {
+      "id": "ipmi-motherboard",
+      "label": "Supermicro H12SSL IPMI",
+      "channels": [
+        {
+          "id": "zone0",
+          "label": "CPU Zone (FAN1-FAN5)",
+          "commands": {
+            "get_duty": "ipmitool raw 0x30 0x70 0x66 0x00 0x00 | tr -d ' \\n' | xargs -I{} printf '%d\\n' 0x{}",
+            "set_duty": "ipmitool raw 0x30 0x45 0x01 0x01; sleep 5; ipmitool raw 0x30 0x70 0x66 0x01 0x00 $(printf '0x%02x' {duty}); sleep 2",
+            "enable_manual": "ipmitool raw 0x30 0x45 0x01 0x01; sleep 5",
+            "reset": "ipmitool raw 0x30 0x45 0x01 0x00"
+          }
+        },
+        {
+          "id": "zone1",
+          "label": "HD Zone (FANA-FANB)",
+          "commands": {
+            "set_duty": "ipmitool raw 0x30 0x45 0x01 0x01; sleep 5; ipmitool raw 0x30 0x70 0x66 0x01 0x01 $(printf '0x%02x' {duty}); sleep 2",
+            "enable_manual": "ipmitool raw 0x30 0x45 0x01 0x01; sleep 5",
+            "reset": "ipmitool raw 0x30 0x45 0x01 0x00"
+          }
+        }
+      ],
+      "temps": []
+    }
+  ]
+}
